@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.Tb_Search = new System.Windows.Forms.TextBox();
             this.Tb_InFile = new System.Windows.Forms.TextBox();
             this.Tb_OutFile = new System.Windows.Forms.TextBox();
@@ -38,7 +39,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.Btn_InOpen = new System.Windows.Forms.Button();
-            this.Btn_OutOpen = new System.Windows.Forms.Button();
+            this.Timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // Tb_Search
@@ -59,8 +60,10 @@
             this.Tb_InFile.Name = "Tb_InFile";
             this.Tb_InFile.Size = new System.Drawing.Size(467, 23);
             this.Tb_InFile.TabIndex = 1;
+            this.Tb_InFile.TextChanged += new System.EventHandler(this.Tb_InFile_TextChanged);
             this.Tb_InFile.DragDrop += new System.Windows.Forms.DragEventHandler(this.Tb_InFile_DragDrop);
             this.Tb_InFile.DragEnter += new System.Windows.Forms.DragEventHandler(this.Tb_InFile_DragEnter);
+            this.Tb_InFile.Leave += new System.EventHandler(this.Tb_InFile_Leave);
             // 
             // Tb_OutFile
             // 
@@ -80,6 +83,7 @@
             this.Btn_Exec.TabIndex = 3;
             this.Btn_Exec.Text = "抽出";
             this.Btn_Exec.UseVisualStyleBackColor = true;
+            this.Btn_Exec.Click += new System.EventHandler(this.Btn_Exec_Click);
             // 
             // Btn_Close
             // 
@@ -141,22 +145,15 @@
             this.Btn_InOpen.UseVisualStyleBackColor = true;
             this.Btn_InOpen.Click += new System.EventHandler(this.Btn_InOpen_Click);
             // 
-            // Btn_OutOpen
+            // Timer1
             // 
-            this.Btn_OutOpen.Location = new System.Drawing.Point(569, 70);
-            this.Btn_OutOpen.Name = "Btn_OutOpen";
-            this.Btn_OutOpen.Size = new System.Drawing.Size(22, 24);
-            this.Btn_OutOpen.TabIndex = 10;
-            this.Btn_OutOpen.Text = "...";
-            this.Btn_OutOpen.UseVisualStyleBackColor = true;
-            this.Btn_OutOpen.Click += new System.EventHandler(this.Btn_OutOpen_Click);
+            this.Timer1.Tick += new System.EventHandler(this.Timer1_Tick);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(603, 127);
-            this.Controls.Add(this.Btn_OutOpen);
             this.Controls.Add(this.Btn_InOpen);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.label3);
@@ -187,7 +184,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Button Btn_InOpen;
-        private System.Windows.Forms.Button Btn_OutOpen;
+        private System.Windows.Forms.Timer Timer1;
     }
 }
 

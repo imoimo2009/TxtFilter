@@ -12,6 +12,8 @@ namespace TxtFilter
 {
     public partial class Form1 : Form
     {
+        int gPrg;
+
         public Form1()
         {
             InitializeComponent();
@@ -47,11 +49,6 @@ namespace TxtFilter
             OpenDlg(Tb_InFile);
         }
 
-        private void Btn_OutOpen_Click(object sender, EventArgs e)
-        {
-            OpenDlg(Tb_OutFile);
-        }
-
         private void OpenDlg(TextBox tb)
         {
             OpenFileDialog ofd = new OpenFileDialog
@@ -61,7 +58,6 @@ namespace TxtFilter
                 FilterIndex = 1,
                 RestoreDirectory = true
             };
-
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 tb.Text = ofd.FileName;
@@ -70,20 +66,92 @@ namespace TxtFilter
 
         private void Tb_Search_TextChanged(object sender, EventArgs e)
         {
-            String str,key, f,t;
-            String[] keys;    
+            Update_OutFile();
+        }
 
-            str = Tb_Search.Text;
-            if (Tb_InFile.Text.Length == 0) return;
+        private void Update_OutFile()
+        {
+            String s, key, f, t;
+
+            s = Tb_Search.Text;
             f = Tb_InFile.Text;
-            t = Path.GetDirectoryName(f) + "\\" + Path.GetFileNameWithoutExtension(f);
-            key = Tb_Search.Text;
-            keys = key.Split(' ');
-            for(int i = 0; i < keys.Count(); i++) 
+            if (f.Length == 0) return;
+            if (Path.GetDirectoryName(f) != "")
             {
-                t = t + "[" + keys[i] + "]";
+                t = Path.GetDirectoryName(f) + "\\";
+            }
+            else
+            {
+                t = "";
+            }
+            t += Path.GetFileNameWithoutExtension(f);
+            key = Tb_Search.Text;
+            if (key.Length > 0)
+            {
+                String[] keys;
+
+                keys = key.Split(' ');
+                for (int i = 0; i < keys.Count(); i++)
+                {
+                    t = t + "[" + keys[i] + "]";
+                }
             }
             Tb_OutFile.Text = t + Path.GetExtension(f);
+        }
+
+        private void Tb_InFile_TextChanged(object sender, EventArgs e)
+        {
+            Update_OutFile();
+        }
+
+        private void Tb_InFile_Leave(object sender, EventArgs e)
+        {
+            Update_OutFile();
+        }
+
+        private void Btn_Exec_Click(object sender, EventArgs e)
+        {
+            Exec_Filter();
+            MessageBox.Show("抽出完了！");
+        }
+
+        private void Exec_Filter()
+        {
+            String in_path, out_path, search_value;
+            String[] keys;
+            StreamReader sr;
+            StreamWriter sw;
+            int max, cnt = 0;
+
+            in_path = Tb_InFile.Text;
+            out_path = Tb_OutFile.Text;
+            search_value = Tb_Search.Text;
+            keys = search_value.Split(' ');
+            sr = new StreamReader(in_path);
+            sw = new StreamWriter(out_path);
+            max = File.ReadAllLines(in_path).Count();
+            Timer1.Enabled = true;
+            while (!sr.EndOfStream)
+            {
+                String s = sr.ReadLine();
+                int sc = 0;
+                foreach(String k in keys)
+                {
+                    if (s.IndexOf(k) > 0) sc++;
+                }
+                if (sc == keys.Count()) sw.WriteLine(s);
+                cnt++;
+                gPrg = cnt / max * 100;
+            }
+            sr.Close();
+            sw.Close();
+            Timer1.Enabled = false;
+        }
+
+        private void Timer1_Tick(object sender, EventArgs e)
+        {
+            progressBar1.Value = gPrg;
+            Application.DoEvents();
         }
     }
 }
