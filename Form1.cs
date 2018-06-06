@@ -129,7 +129,9 @@ namespace TxtFilter
             keys = search_value.Split(' ');
             sr = new StreamReader(in_path);
             sw = new StreamWriter(out_path);
+            progressBar1.Style = ProgressBarStyle.Marquee;
             max = File.ReadAllLines(in_path).Count();
+            progressBar1.Style = ProgressBarStyle.Continuous;
             Timer1.Enabled = true;
             while (!sr.EndOfStream)
             {
@@ -146,6 +148,7 @@ namespace TxtFilter
             sr.Close();
             sw.Close();
             Timer1.Enabled = false;
+            progressBar1.Value = gPrg;
         }
 
         private void Timer1_Tick(object sender, EventArgs e)
