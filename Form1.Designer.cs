@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.Tb_Search = new System.Windows.Forms.TextBox();
             this.Tb_InFile = new System.Windows.Forms.TextBox();
             this.Tb_OutFile = new System.Windows.Forms.TextBox();
@@ -39,7 +38,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.Btn_InOpen = new System.Windows.Forms.Button();
-            this.Timer1 = new System.Windows.Forms.Timer(this.components);
+            this.BackgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.SuspendLayout();
             // 
             // Tb_Search
@@ -145,9 +144,11 @@
             this.Btn_InOpen.UseVisualStyleBackColor = true;
             this.Btn_InOpen.Click += new System.EventHandler(this.Btn_InOpen_Click);
             // 
-            // Timer1
+            // BackgroundWorker1
             // 
-            this.Timer1.Tick += new System.EventHandler(this.Timer1_Tick);
+            this.BackgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BackgroundWorker1_DoWork);
+            this.BackgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.BackgroundWorker1_ProgressChanged);
+            this.BackgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BackgroundWorker1_RunWorkerCompleted);
             // 
             // Form1
             // 
@@ -165,7 +166,10 @@
             this.Controls.Add(this.Tb_InFile);
             this.Controls.Add(this.Tb_Search);
             this.Font = new System.Drawing.Font("MS UI Gothic", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
             this.Name = "Form1";
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "テキスト抽出ツール";
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -184,7 +188,7 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Button Btn_InOpen;
-        private System.Windows.Forms.Timer Timer1;
+        private System.ComponentModel.BackgroundWorker BackgroundWorker1;
     }
 }
 

@@ -1,19 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using static TxtFilter.Constants;
 
 namespace TxtFilter
 {
     public partial class Form1 : Form
     {
-        int gPrg;
-
         public Form1()
         {
             InitializeComponent();
@@ -38,9 +33,9 @@ namespace TxtFilter
 
         private void Tb_InFile_DragDrop(object sender, DragEventArgs e)
         {
-            String[] fname;
+            string[] fname;
 
-            fname = (String[])e.Data.GetData(DataFormats.FileDrop, false);
+            fname = (string[])e.Data.GetData(DataFormats.FileDrop, false);
             Tb_InFile.Text = fname[0];
         }
 
@@ -53,8 +48,8 @@ namespace TxtFilter
         {
             OpenFileDialog ofd = new OpenFileDialog
             {
-                Title = "入力ファイルを開く",
-                Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*",
+                Title = FILEDLG_TITLE,
+                Filter = FILEDLG_FILTER,
                 FilterIndex = 1,
                 RestoreDirectory = true
             };
@@ -71,7 +66,7 @@ namespace TxtFilter
 
         private void Update_OutFile()
         {
-            String s, key, f, t;
+            string s, key, f, t;
 
             s = Tb_Search.Text;
             f = Tb_InFile.Text;
@@ -88,12 +83,12 @@ namespace TxtFilter
             key = Tb_Search.Text;
             if (key.Length > 0)
             {
-                String[] keys;
+                string[] keys;
 
                 keys = key.Split(' ');
-                for (int i = 0; i < keys.Count(); i++)
+                foreach (string k in keys)
                 {
-                    t = t + "[" + keys[i] + "]";
+                    t = t + "[" + k + "]";
                 }
             }
             Tb_OutFile.Text = t + Path.GetExtension(f);
@@ -111,50 +106,76 @@ namespace TxtFilter
 
         private void Btn_Exec_Click(object sender, EventArgs e)
         {
-            Exec_Filter();
-            MessageBox.Show("抽出完了！");
+            progressBar1.Style = ProgressBarStyle.Marquee;
+            Btn_Exec.Enabled = false;
+            BackgroundWorker1.WorkerReportsProgress = true;
+            BackgroundWorker1.RunWorkerAsync(new String[] { Tb_Search.Text,Tb_InFile.Text,Tb_OutFile.Text });
         }
 
-        private void Exec_Filter()
+        private void BackgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
-            String in_path, out_path, search_value;
-            String[] keys;
-            StreamReader sr;
-            StreamWriter sw;
-            int max, cnt = 0;
-
-            in_path = Tb_InFile.Text;
-            out_path = Tb_OutFile.Text;
-            search_value = Tb_Search.Text;
-            keys = search_value.Split(' ');
-            sr = new StreamReader(in_path);
-            sw = new StreamWriter(out_path);
-            progressBar1.Style = ProgressBarStyle.Marquee;
-            max = File.ReadAllLines(in_path).Count();
-            progressBar1.Style = ProgressBarStyle.Continuous;
-            Timer1.Enabled = true;
+            BackgroundWorker bw = (BackgroundWorker)sender;
+            int max, cnt = 0, prg = 0;
+            string[] arg = e.Argument as string[];
+            string[] keys = arg[SEARCH_KEY].Split(' ');
+            StreamReader sr = new StreamReader(arg[INFILE_NAME]);
+            StreamWriter sw = new StreamWriter(arg[OUTFILE_NAME]);
+            
+            max = File.ReadAllLines(arg[INFILE_NAME]).Count();
             while (!sr.EndOfStream)
             {
-                String s = sr.ReadLine();
+                string s = sr.ReadLine();
                 int sc = 0;
-                foreach(String k in keys)
+                foreach (string k in keys)
                 {
-                    if (s.IndexOf(k) > 0) sc++;
+                    if (s.IndexOf(k) >= 0) sc++;
                 }
                 if (sc == keys.Count()) sw.WriteLine(s);
                 cnt++;
-                gPrg = cnt / max * 100;
+                if (prg < cnt / max * 100)
+                {
+                    prg = cnt / max * 100;
+                    bw.ReportProgress(prg);
+                }
             }
             sr.Close();
             sw.Close();
-            Timer1.Enabled = false;
-            progressBar1.Value = gPrg;
+            e.Result = prg;
         }
 
-        private void Timer1_Tick(object sender, EventArgs e)
+        private void BackgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            progressBar1.Value = gPrg;
-            Application.DoEvents();
+            if (progressBar1.Style == ProgressBarStyle.Marquee)
+            {
+                progressBar1.Style = ProgressBarStyle.Continuous;
+            }
+            int prg = e.ProgressPercentage;
+            if (prg < progressBar1.Maximum)
+            {
+                progressBar1.Value = prg + 1;
+                progressBar1.Value = prg;
+            }
+            else
+            {
+                progressBar1.Maximum++;
+                progressBar1.Value = prg + 1;
+                progressBar1.Value = prg;
+                progressBar1.Maximum--;
+            }
+        }
+
+        private void BackgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Error != null)
+            {
+                progressBar1.Value = 0;
+            }
+            else
+            {
+                progressBar1.Value = (int)e.Result;
+                MessageBox.Show(COMPLETE_MSG);
+            }
+            Btn_Exec.Enabled = true;
         }
     }
 }
